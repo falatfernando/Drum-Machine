@@ -1,4 +1,5 @@
 from cgitb import grey
+from tkinter import EventType
 from turtle import width
 import pygame
 from pygame import mixer
@@ -12,7 +13,9 @@ HEIGHT = 700
 #experiment other colors
 black = (0, 0, 0) 
 white = (255, 255, 255) 
-gray = (128, 128, 128) 
+grey = (128, 128, 128)
+green = (0, 255, 0)
+gold = (212, 175, 55)
 
 #making the window structure
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
@@ -23,12 +26,14 @@ fps  = 60
 timer = pygame.time.Clock()
 beats = 8 #tranform into user tempo input
 rows = 8
+boxes = []
+clicked = [[-1 for _ in range(beats)] for _ in range(rows)]
 
 def draw_grid():
-    left_box = pygame.draw.rect(screen, gray, [0, 0, 200, HEIGHT - 100], 5)
-    bottom_box = pygame.draw.rect(screen, gray, [0, HEIGHT - 100, WIDTH, 100], 5)
+    left_box = pygame.draw.rect(screen, grey, [0, 0, 200, HEIGHT - 100], 5)
+    bottom_box = pygame.draw.rect(screen, grey, [0, HEIGHT - 100, WIDTH, 100], 5)
     boxes = []
-    color = [grey, white, gray]
+    color = [grey, white, grey]
 
     #Rows/Instruments Text (hh snare kick tom floor china crash clap)
     hi_hat_text = label_font.render('Hi Hat', True, white)
@@ -50,24 +55,40 @@ def draw_grid():
 
     # Drawing grid
     for i in range(rows):
-        pygame.draw.line(screen, gray, (0, (i * 75) + 75 ), (200, (i * 75) + 75), 3)
+        pygame.draw.line(screen, grey, (0, (i * 75) + 75 ), (200, (i * 75) + 75), 3)
 
     for i in range(beats):
         for j in range(rows):
+            #change the colors of active lines on rows
+            if clicked[j][i] == -1:
+                color = grey
+            else:
+                color = green
             # Always give largest possible beat equally divided
-            rect = pygame.draw.rect(screen, gray, [i * ((WIDTH - 200) // beats) + 200, (j*75), ((WIDTH - 200) // beats), (((HEIGHT - 75)/rows))], 5, 5) 
+            rect = pygame.draw.rect(screen, color, [i * ((WIDTH - 200) // beats) + 205, (j*75) + 5, ((WIDTH - 200) // beats) - 10, (((HEIGHT - 75)/rows)) - 10], 0, 3)
+            pygame.draw.rect(screen, gold, [i * ((WIDTH - 200) // beats) + 200, (j*75), ((WIDTH - 200) // beats), (((HEIGHT - 75)/rows))], 5, 5) 
+            pygame.draw.rect(screen, black, [i * ((WIDTH - 200) // beats) + 200, (j*75), ((WIDTH - 200) // beats), (((HEIGHT - 75)/rows))], 2, 5) 
+            boxes.append((rect, (i, j)))
+    return boxes
 
 #main game loop
 run = True
 while run:
     timer.tick(fps) #use THIS framerate on math part
     screen.fill(black)
-    draw_grid()
+    boxes = draw_grid()
+
     #event handling - check mouse/keyboard clicks and movements
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-
+        #collision detection, doing this to further be able to diff clicked boxes by color
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            for i in range(len(boxes)):
+                if boxes[i][0].collidepoint(event.pos):
+                    coords = boxes[i][1]
+                    clicked[coords[1]][coords[0]] *= -1 
+                    
     pygame.display.flip()
 
 pygame.quit()
