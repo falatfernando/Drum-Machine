@@ -98,7 +98,7 @@ while run:
                     clicked[coords[1]][coords[0]] *= -1 
     
     #making movement to the beat tracker
-    beat_lenght = 3600 // bpm #this is actually not 240 bpm should be 800 // bpm, need to calculate better
+    beat_lenght = 3200 // bpm #this is actually not 240 bpm!!! Should be multiples of ((800) // bpm) - check metronome
 
     if playing:
         if active_lenght < beat_lenght:
