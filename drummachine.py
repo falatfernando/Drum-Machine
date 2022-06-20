@@ -1,4 +1,4 @@
-from cgitb import grey
+from ast import While
 from operator import truediv
 from tkinter import EventType
 from turtle import width
@@ -14,7 +14,8 @@ HEIGHT = 700
 #experiment other colors
 black = (0, 0, 0) 
 white = (255, 255, 255) 
-grey = (128, 128, 128)
+gray = (128, 128, 128)
+dark_gray = (50, 50, 50)
 green = (0, 255, 0)
 gold = (212, 175, 55)
 blue = (0, 255, 255)
@@ -23,6 +24,7 @@ blue = (0, 255, 255)
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
 pygame.display.set_caption("Dinho's Drum Machine")
 label_font = pygame.font.Font('freesansbold.ttf', 32) #change fonts?
+medium_font = pygame.font.Font('freesansbold.ttf', 16)
 
 fps  = 60
 timer = pygame.time.Clock()
@@ -45,6 +47,8 @@ kick = mixer.Sound('sounds\kick.wav')
 eight = mixer.Sound('sounds\808.wav')
 crash = mixer.Sound('sounds\crash.wav')
 laugh = mixer.Sound('sounds\laugh.wav')
+#set sound channels to above from 8
+pygame.mixer.set_num_channels(rows * 3)
 
 def play_notes():
     for i in range(len(clicked)):
@@ -67,10 +71,10 @@ def play_notes():
                 laugh.play()                                                                                                
 
 def draw_grid(clicks, beat):
-    left_box = pygame.draw.rect(screen, grey, [0, 0, 200, HEIGHT - 100], 5)
-    bottom_box = pygame.draw.rect(screen, grey, [0, HEIGHT - 100, WIDTH, 100], 5)
+    left_box = pygame.draw.rect(screen, gray, [0, 0, 200, HEIGHT - 100], 5)
+    bottom_box = pygame.draw.rect(screen, gray, [0, HEIGHT - 100, WIDTH, 100], 5)
     boxes = []
-    color = [grey, white, grey]
+    color = [gray, white, gray]
 
     #Rows/Instruments Text
     hi_hat_text = label_font.render('Hi Hat', True, white)
@@ -99,13 +103,13 @@ def draw_grid(clicks, beat):
 
     # Drawing grid
     for i in range(rows):
-        pygame.draw.line(screen, grey, (0, (i * 75) + 75 ), (200, (i * 75) + 75), 3)
+        pygame.draw.line(screen, gray, (0, (i * 75) + 75 ), (200, (i * 75) + 75), 3)
 
     for i in range(beats):
         for j in range(rows):
             #change the colors of active lines on rows
             if clicked[j][i] == -1:
-                color = grey
+                color = gray
             else:
                 color = green
             # Always give largest possible beat equally divided
@@ -122,6 +126,15 @@ while run:
     timer.tick(fps) #use THIS framerate on math part
     screen.fill(black)
     boxes = draw_grid(clicked, active_beat)
+    # lower menu buttons
+    play_pause = pygame.draw.rect(screen, gray, [30, HEIGHT - 80, 200, 60], 0, 5 )
+    play_text = label_font.render('Play/Pause', True, white)
+    screen.blit(play_text, (40, HEIGHT - 75))
+    if playing:
+        play_text_2 = medium_font.render("Playing", True, dark_gray)
+    else:
+        play_text_2 = medium_font.render("Paused", True, dark_gray)
+    screen.blit(play_text_2, (150, HEIGHT - 40))
 
     if beat_changed:
         play_notes()
@@ -137,7 +150,16 @@ while run:
                 if boxes[i][0].collidepoint(event.pos):
                     coords = boxes[i][1]
                     clicked[coords[1]][coords[0]] *= -1 
-    
+
+        if event.type == pygame.MOUSEBUTTONUP:
+            if play_pause.collidepoint(event.pos):
+                if playing:
+                    playing = False
+                elif not playing:
+                    playing = True
+
+
+
     #making movement to the beat tracker
     beat_lenght = 3200 // bpm #this is actually not 240 bpm!!! Should be multiples of ((800) // bpm) - check metronome
 
