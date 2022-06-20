@@ -36,29 +36,66 @@ active_lenght = 0
 active_beat = 0
 beat_changed = True
 
+# Load in sounds
+hi_hat = mixer.Sound('sounds\hi hat.wav')
+open_hat = mixer.Sound('sounds\open hat.wav')
+snare = mixer.Sound('sounds\snare.wav')
+clap = mixer.Sound('sounds\clap.wav')
+kick = mixer.Sound('sounds\kick.wav')
+eight = mixer.Sound('sounds\808.wav')
+crash = mixer.Sound('sounds\crash.wav')
+laugh = mixer.Sound('sounds\laugh.wav')
+
+def play_notes():
+    for i in range(len(clicked)):
+        if clicked[i][active_beat] == 1:
+            if i == 0:
+                hi_hat.play()
+            if i == 1:
+                open_hat.play()
+            if i == 2:
+                snare.play()
+            if i == 3:
+                clap.play()
+            if i == 4:
+                kick.play()
+            if i == 5:
+                eight.play()
+            if i == 6:
+                crash.play()
+            if i == 7:
+                laugh.play()                                                                                                
+
 def draw_grid(clicks, beat):
     left_box = pygame.draw.rect(screen, grey, [0, 0, 200, HEIGHT - 100], 5)
     bottom_box = pygame.draw.rect(screen, grey, [0, HEIGHT - 100, WIDTH, 100], 5)
     boxes = []
     color = [grey, white, grey]
 
-    #Rows/Instruments Text (hh snare kick tom floor china crash clap)
+    #Rows/Instruments Text
     hi_hat_text = label_font.render('Hi Hat', True, white)
     screen.blit(hi_hat_text, (20, 30))
+
+    openhat_text = label_font.render('Open Hat', True, white)
+    screen.blit(openhat_text, (20, 105))
+
     snare_text = label_font.render('Snare', True, white)
-    screen.blit(snare_text, (20, 105))
-    kick_text = label_font.render('Kick', True, white)
-    screen.blit(kick_text, (20, 180))
-    crash_text = label_font.render('Crash', True, white)
-    screen.blit(crash_text, (20, 255))
-    china_text = label_font.render('China', True, white)
-    screen.blit(china_text, (20, 330))
-    tom_text = label_font.render('Tom', True, white)
-    screen.blit(tom_text, (20, 405))
-    floor_tom_text = label_font.render('Floor Tom', True, white)
-    screen.blit(floor_tom_text, (20, 480))
+    screen.blit(snare_text, (20, 180))
+
     clap_text = label_font.render('Clap', True, white)
-    screen.blit(clap_text, (20, 555))
+    screen.blit(clap_text, (20, 255))
+
+    kick_text = label_font.render('Kick', True, white)
+    screen.blit(kick_text, (20, 330))
+
+    eight_text = label_font.render('808', True, white)
+    screen.blit(eight_text, (20, 405))
+
+    crash_text = label_font.render('Crash', True, white)
+    screen.blit(crash_text, (20, 480))
+
+    laugh_text = label_font.render('Laugh', True, white)
+    screen.blit(laugh_text, (20, 555)) 
 
     # Drawing grid
     for i in range(rows):
@@ -85,6 +122,10 @@ while run:
     timer.tick(fps) #use THIS framerate on math part
     screen.fill(black)
     boxes = draw_grid(clicked, active_beat)
+
+    if beat_changed:
+        play_notes()
+        beat_changed = False
 
     #event handling - check mouse/keyboard clicks and movements
     for event in pygame.event.get():
