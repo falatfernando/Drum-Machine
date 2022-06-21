@@ -34,6 +34,7 @@ beats = 8 #tranform into user tempo input
 rows = 8
 boxes = []
 clicked = [[-1 for _ in range(beats)] for _ in range(rows)]
+active_list = [1 for _ in range(rows)]
 bpm = 240
 playing = True
 active_lenght = 0
@@ -54,7 +55,7 @@ pygame.mixer.set_num_channels(rows * 3)
 
 def play_notes():
     for i in range(len(clicked)):
-        if clicked[i][active_beat] == 1:
+        if clicked[i][active_beat] == 1 and active_list[i] == 1:
             if i == 0:
                 hi_hat.play()
             if i == 1:
@@ -72,35 +73,35 @@ def play_notes():
             if i == 7:
                 laugh.play()                                                                                                
 
-def draw_grid(clicks, beat):
+def draw_grid(clicks, beat, actives):
     left_box = pygame.draw.rect(screen, gray, [0, 0, 200, HEIGHT - 100], 5)
     bottom_box = pygame.draw.rect(screen, gray, [0, HEIGHT - 100, WIDTH, 100], 5)
     boxes = []
     color = [gray, white, gray]
 
     #Rows/Instruments Text
-    hi_hat_text = label_font.render('Hi Hat', True, white)
+    hi_hat_text = label_font.render('Hi Hat', True, color[actives[0]])
     screen.blit(hi_hat_text, (20, 30))
 
-    openhat_text = label_font.render('Open Hat', True, white)
+    openhat_text = label_font.render('Open Hat', True, color[actives[1]])
     screen.blit(openhat_text, (20, 105))
 
-    snare_text = label_font.render('Snare', True, white)
+    snare_text = label_font.render('Snare', True, color[actives[2]])
     screen.blit(snare_text, (20, 180))
 
-    clap_text = label_font.render('Clap', True, white)
+    clap_text = label_font.render('Clap', True, color[actives[3]])
     screen.blit(clap_text, (20, 255))
 
-    kick_text = label_font.render('Kick', True, white)
+    kick_text = label_font.render('Kick', True, color[actives[4]])
     screen.blit(kick_text, (20, 330))
 
-    eight_text = label_font.render('808', True, white)
+    eight_text = label_font.render('808', True, color[actives[5]])
     screen.blit(eight_text, (20, 405))
 
-    crash_text = label_font.render('Crash', True, white)
+    crash_text = label_font.render('Crash', True, color[actives[6]])
     screen.blit(crash_text, (20, 480))
 
-    laugh_text = label_font.render('Laugh', True, white)
+    laugh_text = label_font.render('Laugh', True, color[actives[7]])
     screen.blit(laugh_text, (20, 555)) 
 
     # Drawing grid
@@ -113,7 +114,10 @@ def draw_grid(clicks, beat):
             if clicked[j][i] == -1:
                 color = gray
             else:
-                color = green
+                if actives[j] == 1:
+                    color = green
+                else:
+                    color = dark_gray
             # Always give largest possible beat equally divided
             rect = pygame.draw.rect(screen, color, [i * ((WIDTH - 200) // beats) + 205, (j*75) + 5, ((WIDTH - 200) // beats) - 10, (((HEIGHT - 75)/rows)) - 10], 0, 3)
             pygame.draw.rect(screen, gold, [i * ((WIDTH - 200) // beats) + 200, (j*75), ((WIDTH - 200) // beats), (((HEIGHT - 75)/rows))], 5, 5) 
@@ -127,7 +131,7 @@ run = True
 while run:
     timer.tick(fps) #use THIS framerate on math part
     screen.fill(black)
-    boxes = draw_grid(clicked, active_beat)
+    boxes = draw_grid(clicked, active_beat, active_list)
     # lower menu buttons
     play_pause = pygame.draw.rect(screen, gray, [30, HEIGHT - 80, 200, 60], 0, 5 )
     play_text = label_font.render('Play/Pause', True, white)
@@ -168,6 +172,12 @@ while run:
     screen.blit(beats_add_text, (945, HEIGHT - 80))
     screen.blit(beats_sub_text, (945, HEIGHT - 40))
 
+    # Instrument controls
+    instruments_rects = []
+    for i in range(rows):
+        rect = pygame.rect.Rect((0, i * 75), (200, 100))
+        instruments_rects.append(rect)
+
     if beat_changed:
         play_notes()
         beat_changed = False
@@ -201,6 +211,9 @@ while run:
                 beats -=1
                 for i in range(len(clicked)):
                     clicked[i].pop(-1)
+            for i in range(len(instruments_rects)):
+                if instruments_rects[i].collidepoint(event.pos):
+                    active_list[i] *=-1
 
     #making movement to the beat tracker
     beat_lenght = 3200 // bpm #this is actually not 240 bpm!!! Should be multiples of ((800) // bpm) - check metronome
