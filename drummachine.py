@@ -1,5 +1,7 @@
 from ast import While
+from email.header import Header
 from operator import truediv
+from pydoc import cli
 from tkinter import EventType
 from turtle import width
 import pygame
@@ -136,6 +138,36 @@ while run:
         play_text_2 = medium_font.render("Paused", True, dark_gray)
     screen.blit(play_text_2, (150, HEIGHT - 40))
 
+    # BPM Display
+    bpm_rect = pygame.draw.rect(screen, gray, [300, HEIGHT-80, 200, 60], 5, 5)
+    bpm_text = medium_font.render('BPM', True, white)
+    screen.blit(bpm_text, (380, HEIGHT - 73))
+    bpm_text_2 = label_font.render(f'{bpm}', True, white)
+    screen.blit(bpm_text_2, (370, HEIGHT - 55))
+
+    # Tempo changer
+    bpm_add_rect = pygame.draw.rect(screen, gray, [570, HEIGHT - 85, 30, 30], 0 ,5)
+    bpm_sub_rect = pygame.draw.rect(screen, gray, [570, HEIGHT - 45, 30, 30], 0 ,5)
+    add_text = medium_font.render('+5', True, white)
+    sub_text = medium_font.render('-5', True, white)
+    screen.blit(add_text, (573, HEIGHT - 80)) # Find a way to center this
+    screen.blit(sub_text, (573, HEIGHT - 40)) # Find a way to center this
+
+    # Beats Display
+    beats_rect = pygame.draw.rect(screen, gray, [670, HEIGHT-80, 200, 60], 5, 5)
+    beats_text = medium_font.render('Beats', True, white)
+    screen.blit(beats_text, (750, HEIGHT - 73))
+    beats_text_2 = label_font.render(f'{beats}', True, white)
+    screen.blit(beats_text_2, (765, HEIGHT - 55))
+
+    # Beats changer
+    beats_add_rect = pygame.draw.rect(screen, gray, [940, HEIGHT - 85, 30, 30], 0 ,5)
+    beats_sub_rect = pygame.draw.rect(screen, gray, [940, HEIGHT - 45, 30, 30], 0 ,5)
+    beats_add_text = medium_font.render('+1', True, white)
+    beats_sub_text = medium_font.render('-1', True, white)
+    screen.blit(beats_add_text, (945, HEIGHT - 80))
+    screen.blit(beats_sub_text, (945, HEIGHT - 40))
+
     if beat_changed:
         play_notes()
         beat_changed = False
@@ -157,8 +189,18 @@ while run:
                     playing = False
                 elif not playing:
                     playing = True
-
-
+            elif bpm_add_rect.collidepoint(event.pos):
+                bpm += 5
+            elif bpm_sub_rect.collidepoint(event.pos):
+                bpm -=5
+            elif beats_add_rect.collidepoint(event.pos):
+                beats += 1
+                for i in range(len(clicked)):
+                    clicked[i].append(-1)
+            elif beats_sub_rect.collidepoint(event.pos):
+                beats -=1
+                for i in range(len(clicked)):
+                    clicked[i].pop(-1)
 
     #making movement to the beat tracker
     beat_lenght = 3200 // bpm #this is actually not 240 bpm!!! Should be multiples of ((800) // bpm) - check metronome
