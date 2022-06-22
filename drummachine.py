@@ -1,4 +1,5 @@
 from ast import While
+from cProfile import label
 from email.header import Header
 from operator import truediv
 from pydoc import cli
@@ -182,6 +183,19 @@ while run:
         play_notes()
         beat_changed = False
 
+    # Save and load panel
+    save_button = pygame.draw.rect(screen, gray, [1040, HEIGHT - 85, 100, 30])
+    load_button = pygame.draw.rect(screen, gray, [1040, HEIGHT - 45, 100, 30])
+    save_text = medium_font.render('Save Beat', True, white)
+    load_text = medium_font.render('Load Beat', True, white)
+    screen.blit(save_text, (1050, HEIGHT - 80))
+    screen.blit(load_text, (1050, HEIGHT - 40))
+
+    # Clear board panel
+    clear_button = pygame.draw.rect(screen, gray, [1215, HEIGHT -80, 100, 60])
+    clear_text = label_font.render('Clear', True, white)
+    screen.blit(clear_text, (1220, HEIGHT - 65))
+
     #event handling - check mouse/keyboard clicks and movements
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -211,6 +225,8 @@ while run:
                 beats -=1
                 for i in range(len(clicked)):
                     clicked[i].pop(-1)
+            elif clear_button.collidepoint(event.pos):
+                clicked = [[-1 for _ in range(beats)] for _ in range(rows)]
             for i in range(len(instruments_rects)):
                 if instruments_rects[i].collidepoint(event.pos):
                     active_list[i] *=-1
