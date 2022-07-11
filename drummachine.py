@@ -124,7 +124,7 @@ def draw_grid(clicks, beat, actives):
     for i in range(beats):
         for j in range(rows):
             #change the colors of active lines on rows
-            if clicked[j][i] == -1:
+            if clicks[j][i] == -1:
                 color = gray
             else:
                 if actives[j] == 1:
@@ -144,7 +144,7 @@ def draw_save_menu(beat_name, typing):
     menu_text = label_font.render('Insert a name for your creation!', True, white)
     saving_btn = pygame.draw.rect(screen, gray, [WIDTH//2 - 200, HEIGHT * 0.75 + 80, 400, 50], 0 , 5)
     saving_text = label_font.render('Save Beat!', True, white)
-    screen.blit(save_text, (WIDTH // 2 - 30, HEIGHT * 0.75 + 100))
+    screen.blit(saving_text, (WIDTH // 2 - 75, HEIGHT * 0.75 + 90))
     screen.blit(menu_text, (450, 75))
     exit_btn = pygame.draw.rect(screen, gray, [WIDTH - 200, HEIGHT - 100, 180, 90], 0 , 5)
     exit_text = label_font.render('Close', True, white)
@@ -154,16 +154,32 @@ def draw_save_menu(beat_name, typing):
     entry_rect = pygame.draw.rect(screen, gray, [400, 200, 600, 200], 5 , 5)
     entry_text = label_font.render(f'{beat_name}', True, white)
     screen.blit(entry_text, (430, 250))
-    return exit_btn, saving_btn, entry_rect
+    return exit_btn, saving_btn, beat_name, entry_rect
 
 def draw_load_menu():
     pygame.draw.rect(screen, black,[0, 0,  WIDTH, HEIGHT])
     menu_text = label_font.render('Load one of your creations!', True, white)
+    loading_btn = pygame.draw.rect(screen, gray, [WIDTH//2 - 20, HEIGHT * 0.75 + 80, 400, 50], 0 , 5)
+    loading_text = label_font.render('Load Beat!', True, white)
+    screen.blit(loading_text, (WIDTH // 2 + 100 , HEIGHT * 0.75 + 90))
     screen.blit(menu_text, (450, 75))
+    delete_btn = pygame.draw.rect(screen, gray, [WIDTH//2 - 500, HEIGHT * 0.75 + 80, 400, 50], 0 , 5)
+    delete_text = label_font.render('Delete Beat', True, white)
+    screen.blit(delete_text, ((WIDTH // 2 - 400, HEIGHT * 0.75 + 90)))
     exit_btn = pygame.draw.rect(screen, gray, [WIDTH - 200, HEIGHT - 100, 180, 90], 0 , 5)
     exit_text = label_font.render('Close', True, white)
     screen.blit(exit_text, (WIDTH - 160, HEIGHT - 70))
-    return exit_btn
+    loaded_rectangle = pygame.draw.rect(screen, gray, [250, 120, 800, 420], 5, 5)
+    for beat in range(len(saved_beats)):
+        if beat < 10:
+            beat_clicked = []
+            row_text = medium_font.render(f'{beat + 1}', True, white)
+            screen.blit(row_text, (270, 150 + beat * 50))
+            name_index_start = saved_beats[beat].index('name: ') + 6
+            name_index_end = saved_beats[beat].index(', beats:')
+            name_text = medium_font.render(saved_beats[beat][name_index_start:name_index_end], True, white)
+            screen.blit(name_text, (290, 150 + beat * 50))
+    return exit_btn, loading_btn, delete_btn, loaded_rectangle
 
 #main game loop
 run = True
@@ -237,9 +253,9 @@ while run:
 
     # Menu options
     if save_menu:
-        exit_button, saving_btn, entry_rectangle = draw_save_menu(beat_name, typing)
+        exit_button, saving_btn, beat_name, entry_rect = draw_save_menu(beat_name, typing)
     if load_menu:
-        exit_button = draw_load_menu()
+        exit_button, loading_btn, delete_btn, loaded_rectangle = draw_load_menu()
 
     #event handling - check mouse/keyboard clicks and movements
     for event in pygame.event.get():
@@ -287,7 +303,7 @@ while run:
                 beat_name = ''
                 typing = False
             # Making typing beat name possible
-            if entry_rectangle.collidepoint(event.pos):
+            if entry_rect.collidepoint(event.pos):
                 if typing:
                     typing = False
                 elif not typing:
